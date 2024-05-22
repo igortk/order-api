@@ -1,0 +1,34 @@
+syntax = "proto3";
+import "message/error.proto";
+
+package qm;
+option go_package = "./proto";
+
+message GetExchangeRateRequest{
+  string id = 1;
+  string pair = 2;
+  Type type = 3;
+}
+
+message ExchangeRate{
+  string pair = 1;
+  double min = 2;
+  double average = 3;
+  double max = 4;
+}
+
+message ExchangeRateList {
+  repeated ExchangeRate rate = 1;
+}
+
+message GetExchangeRateResponse{
+  string id = 1;
+  repeated ExchangeRate rates = 2;
+  error.Error error = 3;
+}
+
+enum Type{
+  ORDER_DIRECTION_UNDEFINED = 0;
+  ORDER_ALL = 1;
+  ORDER_SINGLE = 2;
+}
