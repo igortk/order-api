@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"order-api/config"
+	"order-api/di"
 	"order-api/dto/proto"
 	"order-api/utils"
 )
@@ -15,22 +16,13 @@ type MessageSender struct {
 	Channel    *amqp.Channel
 }
 
-func NewMessageSender(cfg *config.RabbitConfig) (*MessageSender, error) {
+func NewMessageSender() *MessageSender {
 	log.Info("creating rmq sender...")
 
-	log.Info("connecting to rmq...")
-	conn, err := amqp.Dial(fmt.Sprintf(config.RmqUrlConnectionPattern, cfg.Username, cfg.Password, cfg.Host, cfg.Port))
-	utils.IsError(err, "err connect to rmq")
-
-	log.Info("creating rmq chanel...")
-	channel, err := conn.Channel()
-	utils.IsError(err, "err create rmq chanel")
-	log.Info("rmq chanel was created")
-
 	return &MessageSender{
-		Connection: conn,
-		Channel:    channel,
-	}, nil
+		Connection: di.Get[*amqp.Connection]("RmqConnection"),
+		Channel:    di.Get[*amqp.Channel]("RmqChannel"),
+	}
 }
 
 func (ms *MessageSender) SendEmmitUserBalanceRequest(message *proto.EmmitBalanceByUserIdRequest) {

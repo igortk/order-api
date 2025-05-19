@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/caarlos0/env/v6"
 	log "github.com/sirupsen/logrus"
+	"order-api/di"
+	"order-api/utils"
 )
 
 type (
@@ -32,11 +34,17 @@ type (
 	}
 )
 
-func GetConfig() (*Config, error) {
+func getConfig() (*Config, error) {
 	log.Info(fmt.Sprintf("getting config..."))
 	var cfg Config
 	if err := env.Parse(&cfg); err != nil {
 		return nil, errors.New("can't parse config")
 	}
 	return &cfg, nil
+}
+
+func init() {
+	cfg, err := getConfig()
+	utils.IsError(err, ErrLoadConfig)
+	di.Provide("config", cfg)
 }
