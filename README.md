@@ -2,9 +2,21 @@
 
 **Order-api** is an interface that allows users to interact with the stock exchange system. All available functionalities will be described below.
 
+## 🛠 Tech Stack  
+- **Backend:** Golang
+- **REST library:** gin 
+- **Message brocker:** RabbitMq
+
+## 🚀 Features
+- 📝 **Create Order** — Place a new order with volume, price, direction, and trading pair.
+- 💱 **Get Exchange Rate** — Retrieve current exchange rates (min/avg/max) for selected currency pairs.
+- 💰 **Emit User Balance** — Simulate or update a user’s balance with a specified currency and amount.
+- 🧾 **Get User Balance** — Fetch detailed user balance information including locked and available funds.
+- ❌ **Remove Order** — Cancel an existing order by ID.
+
 ## 📡 API Endpoints
 
-### ➕ Create order
+### Create order
 Request:
 POST /v1/order/create
 ```sh
@@ -122,21 +134,19 @@ Response:
 }
 ```
 
-### User Balance Emit
+### Remove order
 Request:
-GET /v1/user/balance/emit
+GET /v1/order/remove
 ```sh
 {
-  "id": "123-balance-emit",
-  "user_id": "123-user_id",
-  "currency": "TEST",
-  "amount": 5.6
+  "id": "632-remove-id",
+  "order_id": "632-order"
 }
 ```
 Response:
 ```sh
 {
-  "id": "632-request",
+  "id": "632-remove-id",
   "order": {
     "order_id": "632-order",
     "user_id": "632-user",
@@ -152,3 +162,6 @@ Response:
   "error": {}
 }
 ```
+
+## 🐳 Running via docker
+_comming soon_
