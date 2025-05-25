@@ -22,7 +22,7 @@ func NewConsumer(connection *amqp.Connection, exchange, routingKey, queueName st
 
 	err := channel.ExchangeDeclare(
 		exchange,
-		"topic",
+		amqp.ExchangeTopic,
 		true,
 		false,
 		false,
