@@ -6,4 +6,4 @@ build-main:
   script:
     - echo 'Hello world'
   only:
-    - ci-only
+    - master
