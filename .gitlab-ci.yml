@@ -1,3 +1,4 @@
 include:
-  - local: '.gitlab-ci.yml'
-    ref: ci-cd
+  - project: 'c3piooo/demoprojects/igor/order-api'
+    ref: 'ci-cd'
+    file: '.gitlab-ci.yml'
