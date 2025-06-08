@@ -31,9 +31,9 @@ func (h *ExchangeRateHandler) Action(ctx *gin.Context) {
 
 	err := ctx.BindJSON(h.req)
 	utils.IsError(err, config.ErrBindJson)
-	log.Printf(fmt.Sprintf("req was received\nrequest: %s", h.req))
+	log.Printf(fmt.Sprintf("req was received\nreq Id: %s", h.req.Id))
 
-	h.sender.SendGetExchangeRateRequest(h.req)
+	h.sender.Send(config.RabbitExchangeRateExchange, config.GetExchangeRateRequestRoutingKey, h.req)
 
 	respBytes := h.getExchangeRateConsumer.GetMessageByCondition(h.condition, 60)
 

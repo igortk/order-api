@@ -9,6 +9,16 @@ import (
 	"order-api/utils"
 )
 
+func Close() {
+	log.Info("Closing amqp connection...")
+	err := di.Get[*amqp.Connection]("RmqConnection").Close()
+	utils.IsError(err, "failed close channel")
+
+	log.Info("Closing amqp channel...")
+	err = di.Get[*amqp.Channel]("RmqChannel").Close()
+	utils.IsError(err, "failed close connection")
+}
+
 func init() {
 	cfg := di.Get[*config.Config]("config").RabbitConfig
 

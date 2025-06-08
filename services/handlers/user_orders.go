@@ -33,7 +33,7 @@ func (h *UserOrdersHandler) Action(ctx *gin.Context) {
 	utils.IsError(err, config.ErrBindJson)
 	log.Printf(fmt.Sprintf("req was received\nrequest: %s", h.req))
 
-	h.sender.SendGetUserOrdersRequest(h.req)
+	h.sender.Send(config.RabbitOrderExchange, config.GetUserOrdersRequestRoutingKey, h.req)
 
 	respBytes := h.getUserOrdersConsumer.GetMessageByCondition(h.condition, 60)
 

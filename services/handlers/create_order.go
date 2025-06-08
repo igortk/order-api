@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	gitProto "github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
@@ -11,6 +10,8 @@ import (
 	"order-api/services/rmq"
 	"order-api/utils"
 )
+
+type Event = proto.OrderUpdateEvent
 
 type Handler interface {
 	Action(ctx *gin.Context)
@@ -35,26 +36,44 @@ func (h *CreateOrderHandler) Action(ctx *gin.Context) {
 
 	err := ctx.BindJSON(h.req)
 	utils.IsError(err, config.ErrBindJson)
-	log.Printf(fmt.Sprintf("req was received\nrequest: %s", h.req))
+	log.Printf("req was received request: %s", h.req)
 
-	h.sender.SendCreateOrderRequest(h.req)
+	h.sender.Send(config.RabbitOrderExchange, config.CreateOrderRequestRoutingKey, h.req)
 
-	respBytes := h.orderEventConsumer.GetMessageByCondition(h.condition, 60)
+	event, ok := h.getUpdateEvent()
 
-	event := &proto.OrderUpdateEvent{}
-	err = gitProto.Unmarshal(respBytes, event)
-
-	if err != nil || event.Error != nil {
-		ctx.IndentedJSON(http.StatusUnprocessableEntity, event)
-	} else {
+	if ok || event.Error == nil {
 		ctx.IndentedJSON(http.StatusOK, event)
+	} else {
+		ctx.IndentedJSON(http.StatusUnprocessableEntity, event)
 	}
 
-	log.Printf(fmt.Sprintf("resp was publish\nresponse: %s", event))
+	log.Printf("resp was publish resp/req id: %s", event.Id)
+}
+
+func (h *CreateOrderHandler) getUpdateEvent() (*Event, bool) {
+	event := &Event{Id: h.req.Id}
+	evErr := &proto.Error{
+		Code:    422,
+		Message: "timeout updated order",
+	}
+
+	respBytes := h.orderEventConsumer.GetMessageByCondition(h.condition, 4)
+	if respBytes == nil {
+		event.Error = []*proto.Error{evErr}
+		return event, false
+	}
+
+	err := gitProto.Unmarshal(respBytes, event)
+	if err != nil {
+		evErr.Message = "problem parse event"
+	}
+
+	return event, true
 }
 
 func (h *CreateOrderHandler) condition(message []byte) bool {
-	event := &proto.OrderUpdateEvent{}
+	event := &Event{}
 	err := gitProto.Unmarshal(message, event)
 	utils.IsError(err, "failed unmarshal message")
 

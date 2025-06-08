@@ -53,8 +53,3 @@ const (
 	EmitUserBalanceResponseRoutingKey = "r.balance.EmitUserBalanceResponse"
 	GetUserBalanceRequestRoutingKey   = "r.balance-service.balances.order-api.GetBalanceByUserIdRequest"
 )
-
-// ExchangeTypes
-const (
-	Topic = "topic"
-)

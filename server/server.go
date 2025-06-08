@@ -24,6 +24,8 @@ type Handlers struct {
 var allHandlers = &Handlers{}
 
 func Run() {
+	defer rmq.Close()
+
 	cfg := di.Get[*config.Config]("config").HttpConfig
 
 	log.Info(fmt.Sprintf("running http api..."))

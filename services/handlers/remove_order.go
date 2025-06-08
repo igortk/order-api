@@ -33,7 +33,7 @@ func (h *RemoveOrderHandler) Action(ctx *gin.Context) {
 	utils.IsError(err, config.ErrBindJson)
 	log.Printf(fmt.Sprintf("req was received\nrequest: %s", h.req))
 
-	h.sender.SendRemoveOrderRequest(h.req)
+	h.sender.Send(config.RabbitOrderExchange, config.RemoveOrderRequestRoutingKey, h.req)
 
 	respBytes := h.orderEventConsumer.GetMessageByCondition(h.condition, 60)
 

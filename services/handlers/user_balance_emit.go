@@ -33,7 +33,7 @@ func (h *UserBalanceEmitHandler) Action(ctx *gin.Context) {
 	utils.IsError(err, config.ErrBindJson)
 	log.Printf(fmt.Sprintf("req was received\nrequest: %s", h.req))
 
-	h.sender.SendEmmitUserBalanceRequest(h.req)
+	h.sender.Send(config.RabbitBalanceExchange, config.EmmitUserBalanceRequestRoutingKey, h.req)
 	respBalance := &proto.UserBalance{}
 
 	respBytes := h.emitUserBalanceConsumer.GetMessageByCondition(h.condition, 60)

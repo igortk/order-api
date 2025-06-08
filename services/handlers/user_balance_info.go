@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"order-api/config"
 	"order-api/dto/proto"
 	"order-api/services/rmq"
 	"order-api/utils"
@@ -33,7 +34,7 @@ func (h *UserBalanceInfoHandler) Action(ctx *gin.Context) {
 		UserId: ctx.Param("id"),
 	}
 
-	h.sender.SendGetUserBalanceRequest(h.req)
+	h.sender.Send(config.RabbitBalanceExchange, config.GetUserBalanceRequestRoutingKey, h.req)
 	respBalance := &proto.GetBalanceByUserIdResponse{}
 
 	respBytes := h.getUserBalanceConsumer.GetMessageByCondition(h.condition, 60)
