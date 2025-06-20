@@ -58,7 +58,7 @@ func NewConsumer(connection *amqp.Connection, exchange, routingKey, queueName st
 func (c *Consumer) ConsumeMessages() {
 	mes, err := c.Channel.Consume(
 		c.Queue.Name,
-		"testtestststetstst",
+		"",
 		true,
 		false,
 		false,
