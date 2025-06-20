@@ -38,6 +38,8 @@ func Run() {
 }
 
 func createRestApi(r *gin.Engine) {
+	go di.Get[*rmq.Consumer]("UserBalanceEmitConsumer").ConsumeMessages()
+
 	r.POST(config.UserBalanceEmitPath, allHandlers.userBalanceEmitHandler)
 	r.POST(config.CreateOrderPath, allHandlers.createOrderHandler)
 	r.DELETE(config.RemoveOrderPath, allHandlers.removeOrderHandler)
@@ -81,8 +83,8 @@ func initConsumers() {
 
 	userBalanceEmitConsumer := rmq.NewConsumer(conn,
 		config.RabbitBalanceExchange,
-		config.EmitUserBalanceResponseRoutingKey,
-		"q.emit.user.balance.order.api",
+		"r.balance-service.EmitUserBalanceResponse", //config.EmitUserBalanceResponseRoutingKey,
+		"q.order-api.user.balance.emit.response",
 		make(chan []byte))
 
 	di.Provide("GetUserBalanceConsumer", getUserBalanceConsumer)

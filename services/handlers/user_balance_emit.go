@@ -15,14 +15,14 @@ import (
 type UserBalanceEmitHandler struct {
 	sender                  *rmq.MessageSender
 	emitUserBalanceConsumer *rmq.Consumer
-	req                     *proto.EmmitBalanceByUserIdRequest
+	req                     *proto.EmitBalanceByUserIdRequest
 }
 
 func NewUserBalanceEmitHandler(sender *rmq.MessageSender, emitUserBalanceConsumer *rmq.Consumer) *UserBalanceEmitHandler {
 	return &UserBalanceEmitHandler{
 		sender:                  sender,
 		emitUserBalanceConsumer: emitUserBalanceConsumer,
-		req:                     &proto.EmmitBalanceByUserIdRequest{},
+		req:                     &proto.EmitBalanceByUserIdRequest{},
 	}
 }
 
@@ -34,7 +34,7 @@ func (h *UserBalanceEmitHandler) Action(ctx *gin.Context) {
 	log.Printf(fmt.Sprintf("req was received\nrequest: %s", h.req))
 
 	h.sender.Send(config.RabbitBalanceExchange, config.EmmitUserBalanceRequestRoutingKey, h.req)
-	respBalance := &proto.UserBalance{}
+	respBalance := &proto.EmitBalanceByUserIdResponse{}
 
 	respBytes := h.emitUserBalanceConsumer.GetMessageByCondition(h.condition, 60)
 
@@ -48,7 +48,7 @@ func (h *UserBalanceEmitHandler) Action(ctx *gin.Context) {
 	log.Printf(fmt.Sprintf("resp was publish\nresponse: %s", respBalance))
 }
 func (h *UserBalanceEmitHandler) condition(message []byte) bool {
-	response := &proto.UserBalance{}
+	response := &proto.EmitBalanceByUserIdResponse{}
 	err := gitProto.Unmarshal(message, response)
 	utils.IsError(err, "failed unmarshal message")
 

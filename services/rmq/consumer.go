@@ -58,7 +58,7 @@ func NewConsumer(connection *amqp.Connection, exchange, routingKey, queueName st
 func (c *Consumer) ConsumeMessages() {
 	mes, err := c.Channel.Consume(
 		c.Queue.Name,
-		"",
+		"testtestststetstst",
 		true,
 		false,
 		false,
@@ -67,11 +67,10 @@ func (c *Consumer) ConsumeMessages() {
 	)
 	utils.IsError(err, "Failed to register a consumer")
 
-	go func() {
-		for d := range mes {
-			c.MessageChan <- d.Body
-		}
-	}()
+	for d := range mes {
+		c.MessageChan <- d.Body
+	}
+
 }
 
 func (c *Consumer) GetMessageByCondition(cond Condition, seconds time.Duration) []byte {

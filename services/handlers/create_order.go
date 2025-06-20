@@ -60,7 +60,7 @@ func (h *CreateOrderHandler) getUpdateEvent() (*Event, bool) {
 
 	respBytes := h.orderEventConsumer.GetMessageByCondition(h.condition, 4)
 	if respBytes == nil {
-		event.Error = []*proto.Error{evErr}
+		event.Error = evErr
 		return event, false
 	}
 
