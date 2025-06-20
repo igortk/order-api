@@ -48,13 +48,8 @@ const (
 	GetExchangeRateResponseRoutingKey = "r.quote-manager.rate.GetExchangeRateResponse"
 
 	GetExchangeRateRequestRoutingKey  = "r.quote-manager.rate.order-api.GetExchangeRateRequest"
-	EmmitUserBalanceRequestRoutingKey = "r.balance-service.balances.order-api.EmmitUserBalanceRequest"
+	EmmitUserBalanceRequestRoutingKey = "r.balance-service.balances.order-api.EmitUserBalanceRequest"
 	GetUserBalanceResponseRoutingKey  = "r.balance.GetBalanceByUserIdResponse"
-	EmitUserBalanceResponseRoutingKey = "r.balance.EmitUserBalanceResponse"
+	EmitUserBalanceResponseRoutingKey = "r.balance-service.balances.order-api.EmitUserBalanceRequest"
 	GetUserBalanceRequestRoutingKey   = "r.balance-service.balances.order-api.GetBalanceByUserIdRequest"
-)
-
-// ExchangeTypes
-const (
-	Topic = "topic"
 )

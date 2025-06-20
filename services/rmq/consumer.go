@@ -3,6 +3,7 @@ package rmq
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	"order-api/di"
 	"order-api/utils"
 	"time"
 )
@@ -14,12 +15,14 @@ type Consumer struct {
 	MessageChan chan []byte
 }
 
+type Condition func(message []byte) bool
+
 func NewConsumer(connection *amqp.Connection, exchange, routingKey, queueName string, ch chan []byte) *Consumer {
-	channel, err := connection.Channel()
-	utils.IsError(err, "failed open channel")
-	err = channel.ExchangeDeclare(
+	channel := di.Get[*amqp.Channel]("RmqChannel")
+
+	err := channel.ExchangeDeclare(
 		exchange,
-		"topic",
+		amqp.ExchangeTopic,
 		true,
 		false,
 		false,
@@ -64,20 +67,17 @@ func (c *Consumer) ConsumeMessages() {
 	)
 	utils.IsError(err, "Failed to register a consumer")
 
-	go func() {
-		log.Printf(c.Queue.Name)
-		for d := range mes {
-			c.MessageChan <- d.Body
-		}
-	}()
+	for d := range mes {
+		c.MessageChan <- d.Body
+	}
+
 }
 
-func (c *Consumer) GetMessageByCondition(condition func(message []byte) bool, seconds time.Duration) []byte {
+func (c *Consumer) GetMessageByCondition(cond Condition, seconds time.Duration) []byte {
 	for {
 		select {
 		case message := <-c.MessageChan:
-			// Обработка полученного сообщения
-			if condition(message) {
+			if cond(message) {
 				return message
 			}
 		case <-time.After(seconds * time.Second):
@@ -85,30 +85,7 @@ func (c *Consumer) GetMessageByCondition(condition func(message []byte) bool, se
 			return nil
 		}
 	}
-
-	return nil
 }
-
-/*
-func (c *Consumer) GetMessageByCondition(condition func(message []byte) bool, test chan []byte, seconds time.Duration) []byte {
-	for {
-		select {
-		case message := <-c.MessageChan:
-			if condition(message) {
-				select {
-				case test <- message:
-					return <-test
-				case <-time.After(seconds * time.Second):
-					log.Error("response wasn't received")
-					return nil
-				}
-			}
-		case <-time.After(seconds * time.Second):
-			log.Error("condition wasn't met")
-			return nil
-		}
-	}
-}*/
 
 func (c *Consumer) Close() {
 	err := c.Channel.Close()

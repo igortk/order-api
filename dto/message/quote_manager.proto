@@ -1,5 +1,6 @@
 syntax = "proto3";
 import "message/error.proto";
+import "message/ops_order.proto";
 
 package qm;
 option go_package = "./proto";
@@ -10,11 +11,20 @@ message GetExchangeRateRequest{
   Type type = 3;
 }
 
+message GetUserOrdersRequest{
+  string id = 1;
+  string user_id = 2;
+  repeated string orders_id = 3;
+  Type type = 4;
+}
+
+
 message ExchangeRate{
   string pair = 1;
-  double min = 2;
-  double average = 3;
-  double max = 4;
+  string min = 2;
+  string average = 3;
+  string max = 4;
+  ops.Direction direction = 5;
 }
 
 message ExchangeRateList {
@@ -23,8 +33,13 @@ message ExchangeRateList {
 
 message GetExchangeRateResponse{
   string id = 1;
-  repeated ExchangeRate rates = 2;
+  map<string, ExchangeRateList> pairs = 2;
   error.Error error = 3;
+}
+
+message GetUserOrdersResponse{
+  string id = 1;
+  repeated ops.Order orders = 2;
 }
 
 enum Type{
